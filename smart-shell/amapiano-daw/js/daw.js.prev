@@ -1,0 +1,250 @@
+/* smart-daw daw.js — dock system, panes, piano roll, mixer, transport */
+/* Tokens strictly from smart.toml; skeuomorphic feel only in knobs/faders. */
+
+(function(){
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+
+  /* ============ DOCK SYSTEM ============ */
+  const dockSlots = {
+    browser: { x: 0, y: 0, w: 280, h: '100%' },
+    channel: { x: 280, y: 0, w: 'calc(50% - 140px)', h: 'calc(50% - 6px)' },
+    piano: { x: '50%', y: 0, w: '50%', h: '100%' },
+    transport: { x: 280, y: '50%', w: 'calc(50% - 140px)', h: 60 },
+    mixer: { x: 280, y: 'calc(50% + 60px)', w: 'calc(50% - 140px)', h: 'calc(50% - 66px)' },
+  };
+
+  /* ============ PANE MANAGEMENT ============ */
+  function floatPane(pane) {
+    pane.classList.add('floating');
+    pane.classList.remove('docked');
+    pane.style.position = 'fixed';
+    pane.style.left = '220px';
+    pane.style.top = '140px';
+    pane.style.width = '420px';
+    pane.style.height = '460px';
+    pane.style.zIndex = '60';
+  }
+
+  function dockPane(pane) {
+    pane.classList.remove('floating');
+    pane.classList.add('docked');
+    pane.style.position = '';
+    pane.style.left = '';
+    pane.style.top = '';
+    pane.style.width = '';
+    pane.style.height = '';
+    pane.style.zIndex = '';
+  }
+
+  function toggleFloatDock(pane) {
+    if (pane.classList.contains('floating')) {
+      dockPane(pane);
+    } else {
+      floatPane(pane);
+    }
+  }
+
+  // Make all pane headers draggable when floating
+  $$('.daw-pane-header').forEach(header => {
+    const pane = header.closest('.daw-pane');
+    const floatBtn = header.querySelector('[title="Float/dock"]');
+    if (floatBtn) {
+      floatBtn.addEventListener('click', () => toggleFloatDock(pane));
+    }
+    let dragging = false, startX, startY, startLeft, startTop;
+    header.addEventListener('mousedown', e => {
+      if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+      if (!pane.classList.contains('floating')) return;
+      dragging = true;
+      startX = e.clientX; startY = e.clientY;
+      const cs = getComputedStyle(pane);
+      startLeft = parseFloat(cs.left); startTop = parseFloat(cs.top);
+      pane.style.zIndex = 70;
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      pane.style.left = (startLeft + e.clientX - startX) + 'px';
+      pane.style.top = (startTop + e.clientY - startY) + 'px';
+    });
+    window.addEventListener('mouseup', () => { 
+      if (dragging) {
+        dragging = false;
+        pane.style.zIndex = 60;
+      }
+    });
+  });
+
+  /* ============ CLOSE BUTTONS ============ */
+  $$('[title="Close"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const pane = btn.closest('.daw-pane');
+      if (pane) pane.style.display = 'none';
+    });
+  });
+
+  /* ============ KEYBOARD SHORTCUTS ============ */
+  document.addEventListener('keydown', e => {
+    // Sidebar toggle
+    if ((e.metaKey || e.ctrlKey) && e.key === '\\') {
+      e.preventDefault();
+      const windowEl = $('.window');
+      if (windowEl) windowEl.classList.toggle('is-collapsed');
+    }
+  });
+
+  /* ============ RESIZE HANDLES ============ */
+  function addResizeHandles() {
+    // Add resize handles between docked panes
+    const panes = $$('.daw-pane.docked');
+    panes.forEach(pane => {
+      const handle = document.createElement('div');
+      handle.className = 'resize-handle h';
+      handle.style.cssText = 'position: absolute; top: 0; bottom: 0; width: 6px; cursor: ew-resize; z-index: 5; left: 100%; transform: translateX(-50%);';
+      pane.style.position = 'relative';
+      pane.appendChild(handle);
+    });
+  }
+
+  /* ============ TOOLTIP SYSTEM ============ */
+  const tooltip = $('#tooltip');
+  let ttTimer;
+  function showTooltip(el, e) {
+    clearTimeout(ttTimer);
+    ttTimer = setTimeout(() => {
+      tooltip.textContent = (el.dataset.knob || el.dataset.fader || el.title || '');
+      tooltip.classList.add('show');
+      positionTooltip(e);
+    }, 400);
+  }
+  function hideTooltip() {
+    clearTimeout(ttTimer);
+    tooltip.classList.remove('show');
+  }
+  function positionTooltip(e) {
+    tooltip.style.left = (e.clientX + 14) + 'px';
+    tooltip.style.top = (e.clientY + 14) + 'px';
+  }
+
+  // Attach tooltip to all elements with title
+  $$('[title]').forEach(el => {
+    el.addEventListener('mouseenter', e => showTooltip(el, e));
+    el.addEventListener('mouseleave', hideTooltip);
+    el.addEventListener('mousemove', e => {
+      if (tooltip.classList.contains('show')) positionTooltip(e);
+    });
+  });
+
+  /* ============ DRAG AND DROP ============ */
+  function setupDragDrop() {
+    const browserItems = $$('.browser-item, .rack-step, .piano-note, .playlist-clip');
+    browserItems.forEach(item => {
+      item.setAttribute('draggable', 'true');
+      item.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', item.dataset.id || item.textContent);
+        item.style.opacity = '0.5';
+      });
+      item.addEventListener('dragend', e => {
+        item.style.opacity = '';
+      });
+    });
+
+    const dropZones = $$('.daw-pane-content, .piano-roll-area, .playlist-area');
+    dropZones.forEach(zone => {
+      zone.addEventListener('dragover', e => {
+        e.preventDefault();
+        zone.style.outline = '2px dashed var(--accent)';
+        zone.style.outlineOffset = '-2px';
+      });
+      zone.addEventListener('dragleave', e => {
+        zone.style.outline = '';
+        zone.style.outlineOffset = '';
+      });
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.style.outline = '';
+        zone.style.outlineOffset = '';
+        const data = e.dataTransfer.getData('text/plain');
+        console.log('Dropped:', data, 'on', zone.id);
+        // Handle drop based on target
+        if (zone.id === 'piano-roll-area') {
+          // Add note to piano roll
+        } else if (zone.id === 'playlist-area') {
+          // Add clip to playlist
+        }
+      });
+    });
+  }
+
+  /* ============ CONTEXT MENU ============ */
+  function showContextMenu(x, y, items) {
+    // Remove existing context menu
+    const existing = $('.context-menu');
+    if (existing) existing.remove();
+
+    const menu = document.createElement('div');
+    menu.className = 'context-menu';
+    menu.style.cssText = `position: fixed; left: ${x}px; top: ${y}px; z-index: 300; min-width: 200px; padding: 7px; border-radius: var(--r-menu); background: var(--menu-bg); box-shadow: var(--e4); border: 1px solid var(--hair);`;
+
+    items.forEach(item => {
+      if (item.separator) {
+        const sep = document.createElement('div');
+        sep.style.cssText = 'height: 7px; border-bottom: 1px solid var(--hair); margin: 4px 0;';
+        menu.appendChild(sep);
+      } else {
+        const mi = document.createElement('button');
+        mi.className = 'mi';
+        mi.style.cssText = 'display: flex; align-items: center; gap: 9px; width: 100%; height: 33px; padding: 0 8px; border-radius: 9px; color: var(--ink-2); font-size: 12.5px; text-align: left; transition: background var(--dur-1) ease;';
+        mi.innerHTML = `<span class="ic" style="--ic: 16px;">${item.icon || ''}</span><span class="ml">${item.label}</span>${item.shortcut ? `<span class="mk">${item.shortcut}</span>` : ''}`;
+        mi.addEventListener('click', () => {
+          item.action();
+          menu.remove();
+        });
+        mi.addEventListener('mouseenter', () => mi.style.background = 'var(--accent-tint)');
+        mi.addEventListener('mouseleave', () => mi.style.background = '');
+        menu.appendChild(mi);
+      }
+    });
+
+    document.body.appendChild(menu);
+
+    // Close on click outside
+    const closeHandler = (e) => {
+      if (!menu.contains(e.target)) {
+        menu.remove();
+        document.removeEventListener('click', closeHandler);
+      }
+    };
+    setTimeout(() => document.addEventListener('click', closeHandler), 0);
+  }
+
+  // Right-click on piano notes
+  document.addEventListener('contextmenu', e => {
+    const note = e.target.closest('.piano-note');
+    if (note) {
+      e.preventDefault();
+      showContextMenu(e.clientX, e.clientY, [
+        { label: 'Edit velocity', icon: ' ', action: () => { const v = prompt('Velocity (0-127)', 90); if (v) console.log('Set velocity:', v); } },
+        { label: 'Duplicate', icon: ' ', shortcut: 'Alt+D', action: () => console.log('Duplicate note') },
+        { separator: true },
+        { label: 'Delete', icon: ' ', shortcut: 'Del', action: () => console.log('Delete note') },
+      ]);
+    }
+  });
+
+  /* ============ INITIALIZATION ============ */
+  function init() {
+    addResizeHandles();
+    setupDragDrop();
+    console.log('Smart DAW initialized');
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  window.smartDawDock = { floatPane, dockPane, toggleFloatDock, showContextMenu };
+})();

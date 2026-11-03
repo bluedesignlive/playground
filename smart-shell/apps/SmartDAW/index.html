@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Smart DAW</title>
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/daw.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232F6FEB'/%3E%3Cpath d='M32 15v34M15 32h34' stroke='white' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+@font-face{
+  font-family:"InterVariable";
+  src:url("assets/fonts/InterVariable.woff2") format("woff2");
+  font-weight:100 900;
+  font-style:normal;
+  font-display:block;
+}
+
+/* ============================ reset ============================ */
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:var(--font-ui);
+  font-size:var(--t-body);
+  line-height:var(--lh-body);
+  color:var(--ink-1);
+  background:var(--wall-base,#0b1220) var(--wall-image) center center / cover no-repeat fixed;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+  font-feature-settings:"cv05" 1,"cv08" 1,"ss03" 1;
+  overflow:hidden;
+  user-select:none;
+  font-variant-numeric:tabular-nums;
+}
+body::before{
+  content:"";
+  position:fixed;inset:0;
+  background:var(--wall-veil);
+  pointer-events:none;
+}
+button,input,textarea,select{font:inherit;color:inherit}
+button{background:none;border:0;padding:0;cursor:default;text-align:left}
+button,[role="button"]{-webkit-tap-highlight-color:transparent}
+input,textarea{user-select:text}
+img{display:block;max-width:100%}
+svg{display:block}
+[hidden]{display:none !important}
+::selection{background:var(--accent-tint-3);color:var(--ink-1)}
+h1,h2,h3,h4,p{margin:0}
+:focus:not(:focus-visible){outline:none}
+:focus-visible{
+  outline:var(--focus-width) solid var(--accent);
+  outline-offset:var(--focus-offset);
+  box-shadow:0 0 0 3px var(--focus-halo);
+}
+.sr-only{
+  position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0;
+}
+
+/* ============================ icons ============================ */
+.ic{position:relative;display:inline-flex;flex:none;width:var(--ic,16px);height:var(--ic,16px);color:inherit;pointer-events:none}
+.ic svg{position:absolute;inset:0;width:100%;height:100%;fill:currentColor;opacity:0;transition:opacity var(--dur-1) ease}
+.ic .o{opacity:1}
+.ic-duo .o{opacity:0}
+.ic-duo .d{opacity:1}
+.ic-filled .o,.ic-filled .d{opacity:0}
+.ic-filled .f{opacity:1}
+.ic-static .o{opacity:1}
+.ic-static .d,.ic-static .f{opacity:0}
+</style>
+</head>
+<body>
+
+<!-- ================= first run: theme ================= -->
+<div class="boot" id="boot" hidden>
+  <div class="boot-card" role="dialog" aria-modal="true" aria-labelledby="bootTitle">
+    <span class="boot-mark" aria-hidden="true"><span class="ic" data-ic="soundwave-square"></span></span>
+    <h1 id="bootTitle">Smart DAW</h1>
+    <p>A modern, compact studio. Everything you need, nothing you don't.</p>
+    <div class="boot-grid" role="group" aria-label="Choose a theme">
+      <button class="boot-theme" data-theme-pick="light">
+        <span class="boot-swatch light"><i></i><i></i><i></i><i></i></span>
+        <b>Light</b>
+        <small>Cobalt on smoked glass</small>
+      </button>
+      <button class="boot-theme" data-theme-pick="dark">
+        <span class="boot-swatch dark"><i></i><i></i><i></i><i></i></span>
+        <b>Dark</b>
+        <small>For long sessions</small>
+      </button>
+    </div>
+    <p class="boot-foot">You can switch any time with <kbd>D</kbd>.</p>
+  </div>
+</div>
+
+<!-- ================= audio gate ================= -->
+<div class="audiogate" id="audiogate" hidden>
+  <span class="ic" data-ic="volume-loud"></span>
+  <b>Click anywhere to enable audio</b>
+  <button class="btn" id="audioEnable">Enable</button>
+</div>
+
+<!-- ================= desktop ================= -->
+<div class="desktop">
+  <div class="window" id="win" role="application" aria-label="Smart DAW">
+
+    <!-- ================= topbar ================= -->
+    <header class="topbar" id="topbar">
+      <span class="brand" aria-hidden="true"><span class="ic" data-ic="soundwave-square"></span></span>
+
+      <div class="proj">
+        <input class="proj-name" id="projName" value="Untitled — Amapiano Sketch" aria-label="Project name" spellcheck="false">
+        <span class="proj-state" id="projState"><i class="pdot saved"></i>Saved</span>
+      </div>
+
+      <div class="tb-sep" aria-hidden="true"></div>
+
+      <div class="seg seg-presets" role="group" aria-label="Layout preset">
+        <button data-preset="compose" class="on"><span class="ic" data-ic="music-note-2"></span>Compose</button>
+        <button data-preset="program"><span class="ic" data-ic="widget"></span>Program</button>
+        <button data-preset="arrange"><span class="ic" data-ic="clapperboard"></span>Arrange</button>
+        <button data-preset="mix"><span class="ic" data-ic="slider-vertical"></span>Mix</button>
+      </div>
+
+      <div class="tb-group" role="group" aria-label="History">
+        <button class="iconbtn quiet sm" id="undoBtn" data-tip="Undo  ⌘Z" aria-label="Undo" disabled>
+          <span class="ic" data-ic="alt-arrow-left"></span>
+        </button>
+        <button class="iconbtn quiet sm" id="redoBtn" data-tip="Redo  ⌘⇧Z" aria-label="Redo" disabled>
+          <span class="ic" data-ic="alt-arrow-right"></span>
+        </button>
+        <span class="depth" id="undoDepth" aria-live="polite">0</span>
+      </div>
+
+      <div class="appbar-spacer"></div>
+
+      <div class="tb-group" role="group" aria-label="Master">
+        <span class="tb-label">Master</span>
+        <span class="knob knob-sm" id="masterKnob" role="slider" tabindex="0"
+              aria-label="Master level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="82"
+              aria-valuetext="−1.5 dB"><canvas class="knob-cv" width="76" height="76"></canvas></span>
+      </div>
+
+      <div class="tb-sep" aria-hidden="true"></div>
+
+      <button class="iconbtn quiet sm" id="themeBtn" data-tip="Switch theme  D" aria-label="Switch theme">
+        <span class="ic" data-ic="stars-minimalistic"></span>
+      </button>
+      <button class="iconbtn quiet sm cmd-trigger" id="cmdBtn" data-tip="Command palette  ⌘K" aria-label="Command palette">
+        <span class="cmd-glyph">⌘</span>
+      </button>
+    </header>
+
+    <!-- ================= dock ================= -->
+    <div class="dock" id="dock">
+      <div class="slot" data-slot="left"></div>
+      <div class="slot" data-slot="cl"></div>
+      <div class="slot" data-slot="cr"></div>
+      <div class="slot" data-slot="right"></div>
+      <div class="slot slot-bottom" data-slot="bottom"></div>
+      <div class="floats" id="floats"></div>
+      <div class="slots-veil" id="slotsVeil" aria-hidden="true"></div>
+    </div>
+
+    <!-- ================= transport ================= -->
+    <footer class="transport" id="transport">
+      <div class="tr-left">
+        <button class="iconbtn quiet sm tr-btn" id="rewindBtn" data-tip="Return to start  Home" aria-label="Return to start">
+          <span class="ic" data-ic="rewind-back"></span>
+        </button>
+        <button class="iconbtn tr-btn tr-play" id="playBtn" data-tip="Play  Space" aria-label="Play" aria-pressed="false">
+          <span class="ic" data-ic="play"></span>
+        </button>
+        <button class="iconbtn tr-btn" id="stopBtn" data-tip="Stop  Space" aria-label="Stop">
+          <span class="ic" data-ic="stop"></span>
+        </button>
+        <button class="iconbtn tr-btn tr-rec" id="recBtn" data-tip="Record  R" aria-label="Record" aria-pressed="false">
+          <span class="ic" data-ic="record"></span>
+        </button>
+        <button class="iconbtn tr-btn" id="loopBtn" data-tip="Loop  L" aria-label="Loop" aria-pressed="false">
+          <span class="ic" data-ic="repeat"></span>
+        </button>
+        <button class="iconbtn tr-btn" id="metroBtn" data-tip="Metronome  N" aria-label="Metronome" aria-pressed="false">
+          <span class="ic" data-ic="tuning-2"></span>
+        </button>
+      </div>
+
+      <div class="tr-pos">
+        <output class="pos-main" id="posMain" aria-label="Position">1.1.1</output>
+        <output class="pos-time" id="posTime">0:00.000</output>
+      </div>
+
+      <div class="tr-group tr-bpm">
+        <span class="tb-label">Tempo</span>
+        <input class="bpm" id="bpmField" value="112.0" inputmode="decimal" aria-label="Tempo in beats per minute">
+        <span class="bpm-unit">BPM</span>
+      </div>
+
+      <div class="tr-group tr-loop">
+        <span class="tb-label">Loop</span>
+        <output class="loop-read" id="loopRead">1.1.1 — 5.1.1</output>
+        <button class="iconbtn quiet sm" id="loopSetBtn" data-tip="Set loop to selection" aria-label="Set loop to selection">
+          <span class="ic" data-ic="scale"></span>
+        </button>
+      </div>
+
+      <div class="tr-group tr-grid">
+        <span class="tb-label">Grid</span>
+        <button class="pill" id="gridBtn" aria-haspopup="listbox" aria-expanded="false">
+          <span class="ic" data-ic="widget"></span><span id="gridLabel">1/16</span>
+          <span class="chev" aria-hidden="true"></span>
+        </button>
+      </div>
+      <button class="iconbtn quiet sm" id="keysBtn" data-tip="Keys  ⌘⇧F" aria-label="Toggle Keys">
+        <span class="ic" data-ic="music-note-2"></span>
+      </button>
+
+      <div class="appbar-spacer"></div>
+
+      <div class="tr-right">
+        <span class="tr-stat" id="voiceStat"><span class="ic" data-ic="soundwave"></span>0 voices</span>
+        <span class="tr-stat" id="cpuStat">44.1 kHz · 32-bit</span>
+      </div>
+    </footer>
+
+    <!-- ================= overlays ================= -->
+    <div class="overlay" id="overlay" hidden></div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  </div>
+</div>
+
+<script src="assets/icons.js"></script>
+<script src="assets/daw-icons.js"></script>
+
+<!-- command palette, built by daw.js -->
+<script type="module" src="assets/daw.js"></script>
+</body>
+</html>
