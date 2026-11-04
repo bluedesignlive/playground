@@ -1,0 +1,240 @@
+# smart.toml — Smart design contract v0.1
+# Sealed by the Smart shell prototype. One contract, every host.
+# Adapters: gpui-kit · egui · smart-shell-kit
+# Values are normative. Parity is spec-perfect, not pixel-perfect.
+
+[meta]
+name = "Smart Design"
+version = "0.1.0"
+date = "2026-11-01"
+status = "draft"
+author = "Smart Foundation"
+canonical = "smart.toml"
+prototype = "prototypes/smart-shell/index.html"
+canvas = "assets/wallpaper.jpg"
+
+[color.light]
+ink_1 = "#141d30"
+ink_2 = "#3f4b60"
+ink_3 = "#6b7789"
+ink_4 = "#97a1b2"
+accent = "#2f6feb"
+accent_hover = "#3d7bf7"
+accent_press = "#2560d4"
+accent_ink = "#1c56c4"
+accent_tint = "rgba(47,111,235,0.105)"
+danger = "#d34450"
+good = "#2b9b6d"
+warn = "#c9861a"
+window_top = "rgba(255,255,255,0.845)"
+window_bottom = "rgba(242,247,253,0.795)"
+sidebar_top = "rgba(222,233,248,0.74)"
+sidebar_bottom = "rgba(230,239,250,0.60)"
+content_top = "rgba(255,255,255,0.30)"
+control = "rgba(255,255,255,0.60)"
+control_hover = "rgba(255,255,255,0.86)"
+panel_top = "rgba(252,253,255,0.985)"
+panel_bottom = "rgba(246,249,255,0.975)"
+menu = "rgba(250,252,255,0.985)"
+scrim = "rgba(20,30,48,0.30)"
+
+[color.dark]
+ink_1 = "#eef3fb"
+ink_2 = "#c6cfdf"
+ink_3 = "#96a1b5"
+ink_4 = "#707b90"
+accent = "#6f9bff"
+accent_hover = "#86acff"
+accent_press = "#5b87f0"
+accent_ink = "#a7c1ff"
+accent_tint = "rgba(111,155,255,0.155)"
+danger = "#ff7a84"
+good = "#59c79a"
+warn = "#e5b05a"
+window_top = "rgba(20,27,40,0.86)"
+window_bottom = "rgba(13,19,30,0.88)"
+sidebar_top = "rgba(13,19,30,0.72)"
+sidebar_bottom = "rgba(10,15,25,0.62)"
+content_top = "rgba(255,255,255,0.022)"
+control = "rgba(255,255,255,0.072)"
+control_hover = "rgba(255,255,255,0.115)"
+panel_top = "rgba(24,32,47,0.985)"
+panel_bottom = "rgba(15,22,34,0.99)"
+menu = "rgba(27,35,50,0.98)"
+scrim = "rgba(3,7,14,0.56)"
+
+[color.contrast]
+min_text = 4.5
+min_large = 3.0
+min_ui = 3.0
+tonal_step = 0.06
+on_accent_min = 4.5
+
+[type]
+family = "InterVariable"
+fallback = ["SF Pro Text", "Segoe UI", "system-ui", "sans-serif"]
+features = ["cv05", "cv08", "ss03"]
+size_label = "10.5px"
+size_meta = "11.5px"
+size_body = "13px"
+size_title = "15px"
+size_page = "26px"
+weight_body = 510
+weight_medium = 565
+weight_semibold = 610
+weight_bold = 645
+tracking_tight = "-0.012em"
+tracking_page = "-0.024em"
+line_body = 1.45
+
+[shape]
+window = 22
+panel = 20
+menu = 18
+card = 16
+tile = 13
+item = 11
+pill = 999
+
+[space]
+unit = 4
+gap_xs = 4
+gap_sm = 8
+gap_md = 12
+gap_lg = 16
+gap_xl = 24
+sidebar_width = 252
+appbar_height = 60
+status_height = 34
+content_pad_x = 26
+row_height = 32
+touch_target = 44
+
+[elevation]
+model = "tonal + shadow ladder"
+levels = 5
+
+[elevation.light]
+e1 = "0 1px 2px rgba(16,26,44,.07), inset 0 1px 0 rgba(255,255,255,.58)"
+e2 = "0 3px 10px -3px rgba(16,26,44,.13), 0 1px 2px rgba(16,26,44,.05), inset 0 1px 0 rgba(255,255,255,.68)"
+e3 = "0 14px 34px -12px rgba(16,26,44,.24), 0 3px 10px -2px rgba(16,26,44,.08), inset 0 1px 0 rgba(255,255,255,.66)"
+e4 = "0 28px 72px -16px rgba(14,24,42,.40), 0 6px 18px -6px rgba(14,24,42,.16), inset 0 1px 0 rgba(255,255,255,.62)"
+e5 = "0 54px 140px -28px rgba(9,19,37,.55), 0 18px 48px -18px rgba(9,19,37,.30), inset 0 1px 0 rgba(255,255,255,.62)"
+
+[elevation.dark]
+e1 = "0 1px 2px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.055)"
+e2 = "0 3px 10px -3px rgba(0,0,0,.40), 0 1px 2px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.065)"
+e3 = "0 16px 38px -12px rgba(0,0,0,.58), 0 3px 10px -2px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.07)"
+e4 = "0 32px 80px -16px rgba(0,0,0,.70), 0 8px 22px -6px rgba(0,0,0,.44), inset 0 1px 0 rgba(255,255,255,.08)"
+e5 = "0 60px 150px -30px rgba(0,0,0,.86), 0 20px 54px -18px rgba(0,0,0,.60), inset 0 1px 0 rgba(255,255,255,.09)"
+
+[motion]
+spring = "cubic-bezier(.34,1.42,.44,1)"
+ease_out = "cubic-bezier(.22,1,.36,1)"
+ease_in_out = "cubic-bezier(.65,0,.35,1)"
+fast = "140ms"
+base = "220ms"
+slow = "360ms"
+scene = "520ms"
+sidebar = "360ms"
+menu = "220ms"
+reduced_motion = "fade only"
+
+[focus]
+style = "ring"
+width = 2
+offset = 2
+halo = "rgba(47,111,235,0.22)"
+visible = "always"
+
+[chrome]
+pattern = "unified"
+sidebar = "full-height"
+traffic_lights = "sidebar-top-left"
+traffic_lights_collapsed = "appbar-leading"
+caption_buttons = "traffic-lights"
+appbar_background = "transparent"
+appbar_controls = "tonal-elevated"
+sidebar_edge = "tonal-seam"
+window_drag = ["sidebar-top", "appbar"]
+search_shortcut = "/"
+find_shortcut = "Cmd+F"
+command_palette_shortcut = "Cmd+K"
+sidebar_shortcut = "Cmd+\\"
+ai_affordance = "Ask Smart pill"
+
+[layout]
+grid_columns = 4
+grid_columns_compact = 3
+grid_columns_narrow = 2
+folder_columns = 4
+card_gap = 16
+responsive_auto_collapse = 900
+statusbar = true
+
+[component.appbar]
+height = 60
+button = "pill"
+button_size = 34
+search_width = 214
+search_shape = "pill"
+segmented = true
+traffic_inset = 15
+
+[component.sidebar]
+width = 252
+row_height = 32
+row_radius = 10
+section_label_size = "10.5px"
+section_label_tracking = "0.085em"
+storage_card = true
+footer_caption = true
+
+[component.context_menu]
+width = 252
+submenu_width = 214
+radius = 18
+item_height = 33
+item_radius = 9
+padding = 7
+groups = "space"
+strokes = false
+backdrop = "none"
+surface = "tonal overlay"
+destructive = "danger tint"
+
+[component.card]
+media_ratio = "16 / 10"
+radius = 14
+hover_lift = "2px"
+selection = "accent ring + tint"
+quick_actions = "on hover"
+icon_states = "outline → duotone → filled"
+
+[component.ai_panel]
+width = 394
+side = "right"
+top = 68
+bottom = 44
+radius = 20
+compose_shape = "rounded 15"
+
+[states]
+icon_default = "outline"
+icon_hover = "duotone"
+icon_active = "filled"
+selection = "accent tint + filled icon"
+focus = "visible ring, no stroke"
+press = "scale 0.97 + tonal shift"
+
+[laws]
+laws = [
+  "No decorative strokes. Depth comes from tonal steps and the elevation ladder.",
+  "Every tonal pair passes WCAG: 4.5 for text, 3.0 for large text and UI.",
+  "Focus is always visible; removing strokes never removes focus.",
+  "Five elevation levels only: canvas, window, raised, overlay, modal.",
+  "Touch targets are at least 44 px on coarse pointers.",
+  "Motion has a reduced-motion fallback; springs become fades.",
+  "One smart.toml feeds every host. Spec-perfect, not pixel-perfect.",
+  "Icons are Solar. Outline by default, duotone on hover, filled when active.",
+]
