@@ -1,0 +1,36 @@
+[package]
+name = "smart-core"
+description = "Smart Files backend: virtual file systems, search, jobs, devices, apps — no UI code."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+default = ["demo"]
+demo = []          # seeded in-memory file system used by the web build
+audio = ["dep:rodio"]
+cloud = []         # placeholder for opendal-backed providers (see src/cloud.rs)
+
+[dependencies]
+chrono = { version = "0.4", default-features = false, features = ["clock", "std", "wasmbind"] }
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "gif", "webp", "bmp"] }
+memchr = "2"
+mime_guess = "2"
+miniz_oxide = "0.9"
+nucleo-matcher = "0.3"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+dirs = "7"
+notify = "8"
+rayon = "1"
+sysinfo = { version = "0.40", default-features = false, features = ["disk"] }
+trash = "5"
+rodio = { version = "0.23", default-features = false, features = ["playback", "symphonia-all"], optional = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+js-sys = "0.3"
+wasm-bindgen = "0.2"
+web-sys = { version = "0.3", features = ["Blob", "BlobPropertyBag", "Url", "HtmlAudioElement", "HtmlMediaElement", "Window", "Storage"] }

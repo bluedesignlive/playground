@@ -1,0 +1,10 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Smart Files — dev</title>
+<style>html,body{margin:0;height:100%;overflow:hidden;background:#8a96aa}canvas{width:100%;height:100%;display:block;outline:none}</style></head>
+<body><canvas id="smart-canvas"></canvas>
+<script type="module">
+import init, { start } from "../../src/smart/smart_ui_egui.js";
+await init();
+await start("smart-canvas");
+window.__ready = true;
+</script></body></html>
