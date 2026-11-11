@@ -1,0 +1,6 @@
+# Rust/Cargo build outputs
+smart-gpui/target/
+smart-gpui/xtask/target/
+
+# Common
+.DS_Store

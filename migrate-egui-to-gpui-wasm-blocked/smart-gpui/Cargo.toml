@@ -1,0 +1,23 @@
+[package]
+name = "smart-gpui"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+gpui-kit = "0.9.1"
+wasm-bindgen = "0.2"
+console_error_panic_hook = "0.1"
+include_dir = "0.7"
+js-sys = "0.3"
+
+[profile.release]
+opt-level = "s"
+lto = false
+codegen-units = 16
+debug = false
+strip = "symbols"
+panic = "abort"
